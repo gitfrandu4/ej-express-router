@@ -9,12 +9,12 @@ Deberán estar implementadas las funcionalidades de:
 - [x] Crear un nuevo usuario
 - [x] ]Borrar un usuario
 - [x] Editar el email de un usuario o el nombre (PATCH)
-- [] Subir un tweet nuevo por parte de un usuario
-- [] Ir a buscar un tweet en concreto por su id
-- [] Borrar un tweet por su id
-- [] Opcional: Obtener todos los tweets ordenados tanto asc como desc por la fecha de subida
+- [ ] Subir un tweet nuevo por parte de un usuario
+- [ ] Ir a buscar un tweet en concreto por su id
+- [ ] Borrar un tweet por su id
+- [ ] Opcional: Obtener todos los tweets ordenados tanto asc como desc por la fecha de subida
 - [x] Opcional: Guardar los usuarios en un fichero db.json y actualizarlo con cada cambio.
-- [] Opcional: Guardar los tweets en un fichero db.json y actualizarlo con cada cambio.
-- [] OBLIGATORIO: Usar router para cada recurso
+- [ ] Opcional: Guardar los tweets en un fichero db.json y actualizarlo con cada cambio.
+- [ ] OBLIGATORIO: Usar router para cada recurso
 
 OJO ! CONTROLA QUE LA API NO SE PUEDA QUEDAR PILLADA EN NINGÚN MOMENTO, controla campos vacíos, request inválidas, etc etc y devuelve el error en la respuesta y el código correcto para dicho caso.
