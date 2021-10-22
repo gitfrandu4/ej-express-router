@@ -1,5 +1,5 @@
-const fs = require('fs');
-
+const fs = require("fs");
+var uniqid = require('uniqid'); 
 
 /**
  * GET      /api/tweets                      -> getAll
@@ -8,52 +8,133 @@ const fs = require('fs');
  * DELETE   /api/tweets/:id                  -> deleteTweet
  */
 
+module.exports = { getAll, createTweet, getTweetById, deleteTweet, sortTweetsAsc, sortTweetsDes };
 
-module.exports = {getAll, createTweet, getTweetById, deleteTweet}
+let users = loadUsers();
+let tweets = loadTweets();
 
 function getAll(req, res) {
-  //Faltan errores
-  const userName = req.params.username;
-  let user = getUserByUsername(userName);
-  res.json(user.tweets);
-};
+  loadData();
+  let tweetsSorted = [...tweets];
+  if(req.body.hasOwnProperty('sort') && req.body.sort == 'asc'){
+    tweetsSorted = tweets.sort(function(a,b){
+      return a.createdAt - b.createdAt;
+    })
+  }else if(req.body.hasOwnProperty('sort') && req.body.sort == 'des'){
+    tweetsSorted = tweets.sort(function(a,b){
+      return b.createdAt - a.createdAt;
+    })
+  }
+  res.json(tweetsSorted);
+}
 
 function createTweet(req, res) {
-  const userName = req.params.username;
-  const user = getUserByUsername(userName);
-  const newTweet = req.body.text;
-  user.tweets.push({
-    id: user.tweets.length + 1,
-    text: newTweet,
-    owner: user.username,
+
+  loadData()
+
+  const user = getUserByUsername(req.body.owner);
+  // const validTweet = validateTweet(req.body)
+  // if(!validTweet) res.status(400).send(`CreateError: ${validTweet.message}`);
+  
+  let tweet = {
+    id: generateId(),
+    text: req.body.text,
+    owner: req.body.owner,
     createdAt: Date.now(),
-  });
-  res.json(user);
-};
+  };
+
+  tweets.push(tweet);
+  user.tweets.push(tweet.id);
+
+  saveData()
+  res.json(tweet);
+}
 
 function getTweetById(req, res) {
-  const userName = req.params.username;
-  const tweetID = +req.params.id;
-  const user = getUserByUsername(userName);
-  const tweet = getTweet(tweetID, user);
+  loadData()
+  const tweetID = req.params.id;
+  const tweet = getTweet(tweetID);
   res.json(tweet);
-};
+}
 
 function deleteTweet(req, res) {
-  const userName = req.params.username;
-  const tweetID = +req.params.id;
-  const user = getUserByUsername(userName);
-  user.tweets = user.tweets.filter((tweet) => tweet.id !== tweetID);
+  loadData();
+  const user = getUserByUsername(getTweet(req.params.id).owner);
+  tweets = tweets.filter(tweet => tweet.id != req.params.id)
+  user.tweets = user.tweets.filter((tweet) => tweet != req.params.id);
+  saveData();
   res.json(user);
-};
+}
+
+function sortTweetsAsc(req, res){
+  loadData()
+  console.log('df')
+  const tweetsSorted = tweets.sort(function(a,b){
+    return a.createdAt - b.createdAt;
+  })
+  
+  res.json(tweetsSorted)
+}
+
+function sortTweetsDes(req, res){
+  loadData()
+  const tweetsSorted = tweets.sort(function(a,b){
+    return b.createdAt - a.createdAt;
+  })
+  res.json(tweetsSorted)
+}
+
+function validateTweet(request){
+  
+}
 
 //--------------------------------------FUNCIONES--------------------------------------------------------------------------------
-function getUserByUsername(username) {
-    return users.find((user) => user.username == username);
-  }
+function loadUsers() {
+  const fileData = fs.readFileSync(__dirname + "/../../data/users.json");
+  return JSON.parse(fileData);
+}
 
-function getTweet(id, user) {
+function loadTweets(){
+  const fileData = fs.readFileSync(__dirname + "/../../data/tweets.json");
+  return JSON.parse(fileData);
+}
+
+function saveUsers(users){
+  fs.writeFileSync(__dirname+'/../../data/users.json', JSON.stringify(users));
+}
+
+function saveTweets(tweets){
+  fs.writeFileSync(__dirname+'/../../data/tweets.json', JSON.stringify(tweets));
+}
+
+function loadData(){
+  users = loadUsers();
+  tweets = loadTweets();
+}
+
+function saveData(){
+  saveUsers(users);
+  saveTweets(tweets);
+}
+
+function getUserByUsername(username) {
+  return users.find((user) => user.username == username);
+}
+
+function generateId() {
+  return uniqid.time("tweet-");
+}
+
+function getTweet(id) {
   let tweet = {};
-  tweet = user.tweets.find((tweet) => tweet.id == id);
+  tweet = tweets.find((tweet) => tweet.id == id);
   return tweet;
+}
+
+function validateID(id){
+
+}
+
+function validateTweet(){
+
 }
