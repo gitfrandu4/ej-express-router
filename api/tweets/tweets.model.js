@@ -1,22 +1,18 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-// Definimos nuestro esquema para el modelo de Usuarios
-var TWEETschema = mongoose.Schema({
-    text: String,
-    owner: {
-        type: String,
-        ref: 'User'
-    },
-    tweets: {
-        type: [String],
-        ref: 'Tweet'
-    },
-    createdAt: {
-        type: Date, 
-        default: Date.now
-    }
-})
+var TWEETSschema = new mongoose.Schema({
+  text: String,
+  owner: {
+    type: String,
+    required: true,
+  },
+  createdAt: Date,
+});
 
-var TWEET = mongoose.model('Tweet', TWEETschema)
+var TWEETS = mongoose.model("Tweet", TWEETSschema);
 
-module.exports = TWEET;
+/*TWEETS.find({}, (err, res) => {
+  console.log(res);
+});*/
+module.exports = TWEETS;
