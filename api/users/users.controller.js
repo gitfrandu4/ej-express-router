@@ -6,6 +6,7 @@ const USERModel = require("./users.model");
 // Action mapping
 /**
  * GET      /api/users                      -> getAll
+ * GET      /api/users/:username            -> getByUsername
  * POST     /api/users                      -> create
  * PATCH    /api/users/:username            -> modify
  * PUT      /api/users/:username            -> update // sin implementar
@@ -16,7 +17,7 @@ const USERModel = require("./users.model");
 /*module.exports = {getAll: getAll, create: create, modify: modify, destroy: destroy} */
 
 // ============ Truco: Cuando el nombre con el que exportamos y el del método coinciden:
-module.exports = { getAll, create, modify, destroy };
+module.exports = { getAll, getTweets, create, modify, destroy };
 
 // ============ Línea a línea:
 /* module.exports.getAll = getAll
@@ -27,28 +28,43 @@ module.exports.destroy = destroy */
 // Devuelve todos los usuarios
 // GET http://localhost:5000/api/users
 function getAll(req, res) {
-	USERModel.find()
-		.then((response) => {
-			console.log(response);
-			return res.json(response);
+	USERModel.find().then((response) => {
+		return res.json(response);
 	});
+}
+
+// Devuelve un usuario por su username
+// GET http://localhost:5000/api/users/:username
+function getTweets(req, res) {
+	const { username } = req.params;
+
+	// https://mongoosejs.com/docs/api/query.html#query_Query-findOne
+	const query = USERModel.where({ username: username });
+	query
+		.findOne()
+		.populate("tweets")
+		.exec((err, user) => {
+			if (err) return res.status(400).send(`GetUserByUsername: ${checkNewUser.message}`);
+			if (user) {
+				return res.json(user);
+			}
+		});
 }
 
 // Crea un nuevo usuario
 // POST http://localhost:5000/api/users
-function create(req, res) {
+async function create(req, res) {
 	let checkNewUser = validateNewUser(req.body);
 
 	if (checkNewUser.validated) {
-		var newUser = new USERModel ({
+		var newUser = new USERModel({
 			username: req.body.username,
 			name: req.body.name,
 			email: req.body.email,
-			id: generateId(),
 			tweets: [],
 		});
-		console.log(newUser)
-		newUser.save()
+		console.log(newUser);
+		await newUser.save();
 		return res.json(newUser);
 	} else {
 		return res.status(400).send(`CreateUserError: ${checkNewUser.message}`);
@@ -58,30 +74,25 @@ function create(req, res) {
 // Borra un usuario
 // DELETE http://localhost:5000/api/users/:username
 async function destroy(req, res) {
+	const username = req.params.username;
 
-	const userName = req.params.username;
-
-	// Check if username (id) exists in a collection with mongoose
-	// const doesUserExist = await USERModel.exists({username: userName})
-
-	// Ayuda: https://stackoverflow.com/questions/31549857/mongoose-what-does-the-exec-function-do/31550321#31550321
-	USERModel.findOneAndRemove({username: userName}, (err, user) => {
-		if(user){
-			return res.status(200).send(`El usuario [${userName}] se ha borrado correctamente`);
+	USERModel.findOneAndRemove({ username }, (err, user) => {
+		if (user) {
+			return res.status(200).send(`El usuario [${username}] se ha borrado correctamente`);
 		}
-		return res.status(404).send(`DeleteError: El usuario [${userName}] no existe en la BD`);	
-	})
+		return res.status(404).send(`DeleteError: El usuario [${username}] no existe en la BD`);
+	});
 }
 
 // Modifica el correo || Nombre de un usuario
 // PATCH http://localhost:5000/api/users/:username
 async function modify(req, res) {
-	const userName = req.params.username;
+	const username = req.params.username;
 
-	const doesUserExist = await USERModel.exists({username: userName})
+	const doesUserExist = await USERModel.exists({ username });
 	if (!doesUserExist) return res.status(400).send(`ModifyUserError: El usuario no existe`);
 
-	let updateUserInfo = {}
+	let updateUserInfo = {};
 
 	if (!req.body || (!req.body.hasOwnProperty("name") && !req.body.hasOwnProperty("email"))) {
 		return res.status(400).send(`ModifyUserError: request.body is empty`);
@@ -90,21 +101,20 @@ async function modify(req, res) {
 	if (req.body.hasOwnProperty("email") && req.body.email != "") {
 		if (!validateEmail(req.body.email))
 			return res.status(400).send(`ModifyError: El nuevo email no tiene un formato válido`);
-		updateUserInfo.email = req.body.email
+		updateUserInfo.email = req.body.email;
 	}
 
 	if (req.body.hasOwnProperty("name") && req.body.name != "") updateUserInfo.name = req.body.name;
 
-	USERModel.updateOne({username: userName}, {$set: updateUserInfo}, (err, response) => {
-		console.log(response)
-		if(response.modifiedCount === 1){
-			return res.status(200).send(`El usuario [${userName}] se ha modificado correctamente`);
+	USERModel.updateOne({ username: username }, { $set: updateUserInfo }, (err, response) => {
+		console.log(response);
+		if (response.modifiedCount === 1) {
+			return res.status(200).send(`El usuario [${username}] se ha modificado correctamente`);
 		} else {
 			return res.status(200).send(`ModifyUser: no se han modificado los campos del usuario`);
 		}
-	})
+	});
 }
-
 /**
  * =====================================================================
  * ============================= Auxiliars =============================
@@ -130,9 +140,8 @@ function validateEmail(email) {
  * @returns un objeto con dos propiedades: validated (true o false)
  * y message (mensaje explicando el error)
  */
-function validateNewUser(request) {
-	// console.log(request);
-
+async function validateNewUser(request) {
+	console.log(request.name);
 	// body vacío
 	if (!request) return { validated: false, message: "request.body is empty" };
 
@@ -145,17 +154,23 @@ function validateNewUser(request) {
 			request.email != ""
 		)
 	) {
-		return { validated: false, message: "Los campos [username] y [email] son obligatorios." };
+		return {
+			validated: false,
+			message: "Los campos [username] y [email] son obligatorios.",
+		};
 	}
 
 	// el email no es válido
 	if (!validateEmail(request.email))
-		return { validated: false, message: `El email introducido [${request.email}] no es válido.` };
+		return {
+			validated: false,
+			message: `El email introducido [${request.email}] no es válido.`,
+		};
 
 	// el usuario ya existe (username o correo coinciden)
-	let user = users.find((user) => request.username == user.username || request.email == user.email);
+	let userExist = await USERModel.exists({ username: request.username });
 
-	if (!!user) {
+	if (userExist) {
 		// !!user <==> user != undefined
 		return {
 			validated: false,
@@ -170,55 +185,55 @@ function validateNewUser(request) {
 	};
 }
 
-/**
- * Generate a unique id based on the current time, process and machine name
- * @returns
- */
- function generateId() {
-	return uniqid.time("user-");
-}
+// /**
+//  * Generate a unique id based on the current time, process and machine name
+//  * @returns
+//  */
+//  function generateId() {
+// 	return uniqid.time("user-");
+// }
 
-/**
- * =====================================================================
- * ============================  SIN USAR  =============================
- * =====================================================================
- */
+// /**
+//  * =====================================================================
+//  * ============================  SIN USAR  =============================
+//  * =====================================================================
+//  */
 
-/**
- * Lee los usuarios guardados en el fichero /data/users.json
- * @returns los ficheros parseados en JSON
- */
-function loadUsers() {
-	const fileData = fs.readFileSync(__dirname + "/../../data/users.json");
-	return JSON.parse(fileData);
-}
+// /**
+//  * Lee los usuarios guardados en el fichero /data/users.json
+//  * @returns los ficheros parseados en JSON
+//  */
+// function loadUsers() {
+// 	const fileData = fs.readFileSync(__dirname + "/../../data/users.json");
+// 	return JSON.parse(fileData);
+// }
 
-/**
- * Guarda los usuarios en el fichero /data/users.json
- * @returns
- */
-function saveUsers(users) {
-	fs.writeFileSync(__dirname + "/../../data/users.json", JSON.stringify(users));
-}
+// /**
+//  * Guarda los usuarios en el fichero /data/users.json
+//  * @returns
+//  */
+// function saveUsers(users) {
+// 	fs.writeFileSync(__dirname + "/../../data/users.json", JSON.stringify(users));
+// }
 
-/**
- * Busca un usuario en la bd por el campo username
- * @param username - username del usuario (su id)
- * @returns Los datos del usuario si existe o undefined si no lo encontró
- */
-function getUserByUsername(username) {
-	return users.find((user) => user.username == username);
-}
+// /**
+//  * Busca un usuario en la bd por el campo username
+//  * @param username - username del usuario (su id)
+//  * @returns Los datos del usuario si existe o undefined si no lo encontró
+//  */
+// function getUserByUsername(username) {
+// 	return users.find((user) => user.username == username);
+// }
 
-/**
- * Busca un usuario registrado por el campo email
- * @param email - email del usuario
- * @returns Los datos del usuario si existe o undefined si no lo encontró
- */
-function getUserByEmail(email) {
-	return users.find((user) => user.email == email);
-}
+// /**
+//  * Busca un usuario registrado por el campo email
+//  * @param email - email del usuario
+//  * @returns Los datos del usuario si existe o undefined si no lo encontró
+//  */
+// function getUserByEmail(email) {
+// 	return users.find((user) => user.email == email);
+// }
 
-function invalidBody(body) {
-	return !body || !Object.keys(body).length;
-}
+// function invalidBody(body) {
+// 	return !body || !Object.keys(body).length;
+// }

@@ -1,21 +1,32 @@
 const mongoose = require('mongoose');
+// const Schema = mongoose.Schema;
 
 // Definimos nuestro esquema para el modelo de Usuarios
-var USERschema = mongoose.Schema({
-    username: String,
-    name: String,
-    email: String,
-    id: String,
-    tweets: {
-        type: [String],
-        ref: 'Tweet'
+var USERschema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  name: String,
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  id: String,
+  tweets: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tweet",
     },
-    created: {
-        type: Date, 
-        default: Date.now
-    }
-})
+  ],
+  created: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-var USER = mongoose.model('User', USERschema)
+var USER = mongoose.model("User", USERschema);
 
 module.exports = USER;

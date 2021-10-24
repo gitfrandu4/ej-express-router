@@ -39,12 +39,36 @@ Oye, que me han dicho que ahora sabes usar middlewares, pues mira, estaría inte
 
 Guardar los datos del proyecto en mongoDB usando mongoose para conectar nuestra API con la base de datos
 
-- [ ] Usuarios
-- [x] Usuarios: schema
-- [ ] Usuarios: validaciones
-- [ ] Tweets 
-- [ ] Tweets: schema
-- [ ] Tweets: validaciones
+- [ ] R1. Usuarios
+    - [x] Definir Schema
+    - [x] Implementar CRUD de users
+
+    ```javascript
+    /**
+     * GET      /api/users                      -> getAll
+     * POST     /api/users                      -> create
+     * PATCH    /api/users/:username            -> modify
+     * PUT      /api/users/:username            -> update
+     * DELETE   /api/users/:username            -> destroy
+    */
+    ```
+
+    - [x] Validaciones con mongoose
+
+- [ ] R2. Tweets 
+- [x] Definir Schema
+    - [x] Implementar CRUD de users
+
+    ```javascript
+    /**
+     * GET      /api/tweets                      -> getAll
+     * POST     /api/tweets                      -> createTweet
+     * GET      /api/tweets/:id                  -> getTweet
+     * DELETE   /api/tweets/:id                  -> deleteTweet
+    */
+    ```
+
+    - [x] Validaciones con mongoose
 ## Parte 4: Mejoras 
 
 1. Aplicar paginación a la API
