@@ -13,48 +13,38 @@ const USERModel = require("../../api/users/users.model");
  */
 
 module.exports = { getAll, create, getTweet, deleteTweet };
-/*
-let tweets = loadTweets();
-let users = loadUsers();
-*/
 
+// Devuelve todos los tweets
+// GET http://localhost:5000/api/tweets
 async function getAll(req, res) {
   const { _sort } = req.query;
-  console.log({ _sort });
-  if (_sort != undefined && _sort == "asc") {
-    TWEETModel.find()
-      .sort([["createdAt", 1]])
+
+  let sort_order
+
+  if (_sort != undefined && _sort == "asc") 
+    sort_order = 1
+  else 
+    sort_order = -1
+
+  console.log(sort_order)
+
+  TWEETModel.find()
+      .sort([["createdAt", sort_order]])
       .then((response) => {
         return res.json(response);
       });
-  } else {
-    TWEETModel.find()
-      .sort([["createdAt", -1]])
-      .then((response) => {
-        return res.json(response);
-      });
-  }
-  //.sort([['date', -1]]).exec(function(err, docs) { ... });
-  /*
-  if (req.body.hasOwnProperty("sort") && req.body.sort == "asc") {
-    tweetsSorted = tweets.sort(function (a, b) {
-      return a.createdAt - b.createdAt;
-    });
-  } else if (req.body.hasOwnProperty("sort") && req.body.sort == "des") {
-    tweetsSorted = tweets.sort(function (a, b) {
-      return b.createdAt - a.createdAt;
-    });
-  }
-  res.json(tweetsSorted);
-  */
 }
 
+// Guarda un nuevo tuit en BD
+// POST http://localhost:5000/api/tweets
 async function create(req, res) {
+
   var newTweet = new TWEETModel({
     text: req.body.text,
     owner: req.body.owner,
     createdAt: Date.now(),
   });
+
   let userExist = await USERModel.exists({ username: req.body.owner });
 
   if (!userExist) {
@@ -62,18 +52,13 @@ async function create(req, res) {
       .status(404)
       .send(`El username utilizado: ${req.body.owner}  no existe.`);
   }
-  TWEETModel.create(req.body);
+
   newTweet
     .save()
     .then((response) => {
       return { _id: response._id, owner: response.owner };
-      //return res.send("Se ha creado el Tweet correctamente \n" + response);
     })
     .then(async (response) => {
-      // console.log(response._id);
-      // let user = await USERModel.findOne({ username: response.owner });
-      // let tweets = user.tweets;
-      // tweets.push(response._id);
 
       USERModel.updateOne(
         { username: response.owner },
@@ -92,11 +77,10 @@ async function create(req, res) {
     });
 }
 
+// Devuelve un twit por su id
+// GET http://localhost:5000/api/tweets/:id
 function getTweet(req, res) {
   let _id = req.params.id;
-  /*{req.param.id}
-  // { _id: id } <==> {id}
-  */
   TWEETModel.findById({ _id })
     .then((response) => {
       console.log(response);
@@ -106,6 +90,9 @@ function getTweet(req, res) {
       return res.status(404).send(e);
     });
 }
+
+// Borra un twit por su id
+// DELETE http://localhost:5000/api/tweets/:id
 function deleteTweet(req, res) {
   let _id = req.params.id;
   TWEETModel.deleteOne({ _id }, function (err) {
@@ -114,68 +101,3 @@ function deleteTweet(req, res) {
       return res.send("Se ha borrado correctamente el tweet con la id: " + _id);
   });
 }
-
-// //--------------------------------------FUNCIONES--------------------------------------------------------------------------------
-// function getUserByUsername(username) {
-//   return users.find((user) => user.username == username);
-// }
-// function sortTweetsAsc(req, res) {
-//   loadData();
-//   console.log("df");
-//   const tweetsSorted = tweets.sort(function (a, b) {
-//     return a.createdAt - b.createdAt;
-//   });
-
-//   res.json(tweetsSorted);
-// }
-
-// function sortTweetsDes(req, res) {
-//   loadData();
-//   const tweetsSorted = tweets.sort(function (a, b) {
-//     return b.createdAt - a.createdAt;
-//   });
-//   res.json(tweetsSorted);
-// }
-
-// function loadUsers() {
-//   const fileData = fs.readFileSync(__dirname + "/../../data/users.json");
-//   return JSON.parse(fileData);
-// }
-
-// function loadTweets() {
-//   const fileData = fs.readFileSync(__dirname + "/../../data/tweets.json");
-//   return JSON.parse(fileData);
-// }
-
-// function saveUsers(users) {
-//   fs.writeFileSync(__dirname + "/../../data/users.json", JSON.stringify(users));
-// }
-
-// function saveTweets(tweets) {
-//   fs.writeFileSync(
-//     __dirname + "/../../data/tweets.json",
-//     JSON.stringify(tweets)
-//   );
-// }
-
-// function loadData() {
-//   users = loadUsers();
-//   tweets = loadTweets();
-// }
-
-// function saveData() {
-//   saveUsers(users);
-//   saveTweets(tweets);
-// }
-
-// function generateId() {
-//   return uniqid.time("tweet-");
-// }
-
-// function getTweet(id) {
-//   let tweet = {};
-//   tweet = tweets.find((tweet) => tweet.id == id);
-//   return tweet;
-// }
-
-// function validateID(id) {}

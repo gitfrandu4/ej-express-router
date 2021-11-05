@@ -12,7 +12,4 @@ var TWEETSschema = new mongoose.Schema({
 
 var TWEETS = mongoose.model("Tweet", TWEETSschema);
 
-/*TWEETS.find({}, (err, res) => {
-  console.log(res);
-});*/
 module.exports = TWEETS;

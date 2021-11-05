@@ -27,19 +27,17 @@ OJO: CONTROLAR QUE LA API NO SE PUEDA QUEDAR PILLADA EN NINGÚN MOMENTO, control
 
 ## Parte 2: Middlewares
 
-El producto evoluciona
+El producto evoluciona => utilizando **middlewares** estaría interesante que : 
 
-Oye, que me han dicho que ahora sabes usar middlewares, pues mira, estaría interesante que : 
-
-- Cuando se produzca un error en nuestra api le llegue un correo al desarrollador con el error.
-- También estaría chulo que si un usuario nos hace más de 20 peticiones POST en una misma sessión no le permitas hacer más peticiones post y nos informes por correo también.
-- Hemos visto que hay muchas herramientas para monitorizar logs por ahí :S Investiga e implementa alguna para controlar todo lo que pasa en nuestro server de express [https://www.slant.co/options/955/alternatives/~loggly-alternatives](https://www.slant.co/options/955/alternatives/~loggly-alternatives)
+- [ ] Cuando se produzca un error en nuestra api le llegue un correo al desarrollador con el error.
+- [ ] También estaría chulo que si un usuario nos hace más de 20 peticiones POST en una misma sessión no le permitas hacer más peticiones post y nos informes por correo también.
+- [ ] Hemos visto que hay muchas herramientas para monitorizar logs por ahí :S Investiga e implementa alguna para controlar todo lo que pasa en nuestro server de express [https://www.slant.co/options/955/alternatives/~loggly-alternatives](https://www.slant.co/options/955/alternatives/~loggly-alternatives)
 
 ## Parte 3: Conexión a MongoDB
 
 Guardar los datos del proyecto en mongoDB usando mongoose para conectar nuestra API con la base de datos
 
-- [ ] R1. Usuarios
+- [x] R1. Usuarios
     - [x] Definir Schema
     - [x] Implementar CRUD de users
 
@@ -55,7 +53,7 @@ Guardar los datos del proyecto en mongoDB usando mongoose para conectar nuestra 
 
     - [x] Validaciones con mongoose
 
-- [ ] R2. Tweets 
+- [x] R2. Tweets 
 - [x] Definir Schema
     - [x] Implementar CRUD de users
 
@@ -71,10 +69,18 @@ Guardar los datos del proyecto en mongoDB usando mongoose para conectar nuestra 
     - [x] Validaciones con mongoose
 ## Parte 4: Mejoras 
 
-1. Aplicar paginación a la API
-    * queryParams: [vídeo](Path vs Query Parameters in HTTP Requests (with Postman))
-    * Investigar como páginar una búsqueda de mongoose
-    * Investigar tanto el `limit` como el `skip` y parametrizarlo
+- [ ] Aplicar paginación a la API
+    - [ ] Usar queryParams: [vídeo](Path vs Query Parameters in HTTP Requests (with Postman))
+    - [ ] Investigar como páginar una búsqueda de mongoose
+    - [ ] Investigar tanto el `limit` como el `skip` y parametrizarlo
 
-2. Frontend
-    * Realizar un frontal para nuestro proyecto
+- [ ] Frontend
+    - [ ] Realizar un frontal para nuestro proyecto
+
+Note: 
+
+Start node.js app with nodemon (restarts the app when file changes in the directory are detected)
+
+```
+nodemon index.js
+```

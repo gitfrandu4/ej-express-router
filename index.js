@@ -1,5 +1,8 @@
 const express = require("express");
+
 const app = express();
+app.disable("x-powered-by")
+
 const mongoose = require("mongoose");
 
 mongoose.connect('mongodb://localhost/db-twitter', function(err) {
