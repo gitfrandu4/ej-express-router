@@ -45,12 +45,14 @@ async function create(req, res) {
     createdAt: Date.now(),
   });
 
-  let userExist = await USERModel.exists({ username: req.body.owner });
+  let owner = req.body.owner.toString()
+
+  let userExist = await USERModel.exists({username: owner});
 
   if (!userExist) {
     return res
       .status(404)
-      .send(`El username utilizado: ${req.body.owner}  no existe.`);
+      .send(`El username utilizado: ${owner}  no existe.`);
   }
 
   newTweet

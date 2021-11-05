@@ -1,5 +1,4 @@
-const fs = require("fs");
-var uniqid = require("uniqid");
+const sanitizeHtml = require('sanitize-html');
 
 const USERModel = require("./users.model");
 
@@ -13,17 +12,8 @@ const USERModel = require("./users.model");
  * DELETE   /api/users/:username            -> destroy
  */
 
-// ============ El tirón con un objeto:
-/*module.exports = {getAll: getAll, create: create, modify: modify, destroy: destroy} */
-
 // ============ Truco: Cuando el nombre con el que exportamos y el del método coinciden:
 module.exports = { getAll, getTweets, create, modify, destroy };
-
-// ============ Línea a línea:
-/* module.exports.getAll = getAll
-module.exports.create = create
-module.exports.modify = modify
-module.exports.destroy = destroy */
 
 // Devuelve todos los usuarios
 // GET http://localhost:5000/api/users
@@ -54,7 +44,9 @@ function getTweets(req, res) {
 // Crea un nuevo usuario
 // POST http://localhost:5000/api/users
 async function create(req, res) {
-	let checkNewUser = validateNewUser(req.body);
+	let checkNewUser = await validateNewUser(req.body);
+
+	console.log(checkNewUser)
 
 	if (checkNewUser.validated) {
 		var newUser = new USERModel({
@@ -128,7 +120,7 @@ async function modify(req, res) {
  */
 function validateEmail(email) {
 	const re =
-		/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 	return re.test(String(email).toLowerCase());
 }
 
@@ -168,7 +160,7 @@ async function validateNewUser(request) {
 		};
 
 	// el usuario ya existe (username o correo coinciden)
-	let userExist = await USERModel.exists({ username: request.username });
+	let userExist = await USERModel.exists({ username: request.username.toString() });
 
 	if (userExist) {
 		// !!user <==> user != undefined

@@ -23,7 +23,41 @@ Opcional
 - [x] Opcional: Guardar los tweets en un fichero db.json y actualizarlo con cada cambio.
 - [x] OBLIGATORIO: Usar router para cada recurso
 
-OJO: CONTROLAR QUE LA API NO SE PUEDA QUEDAR PILLADA EN NINGÚN MOMENTO, controla campos vacíos, request inválidas, etc etc y devuelve el error en la respuesta y el código correcto para dicho caso.
+```javascript
+// Action mapping
+/**
+ * GET      /api/users                      -> getAll
+ * GET      /api/users/:username            -> getByUsername
+ * POST     /api/users                      -> create
+ * PATCH    /api/users/:username            -> modify
+ * PUT      /api/users/:username            -> update 
+ * DELETE   /api/users/:username            -> destroy
+ */
+
+// Export methods
+
+// ============ El tirón con un objeto:
+/*module.exports = {getAll: getAll, create: create, modify: modify, destroy: destroy} */
+
+// ============ Truco: Cuando el nombre con el que exportamos y el del método coinciden:
+
+module.exports = { getAll, getTweets, create, modify, destroy };
+
+// ============ Línea a línea:
+/* module.exports.getAll = getAll
+module.exports.create = create
+module.exports.modify = modify
+module.exports.destroy = destroy */
+```
+
+Controlar:
+
+* Que la API no se queda bloqueada en ningún momento
+* Campos vacíos en la request
+* Request inválidas
+* etc.
+
+Devolver en su caso el error en la respuesta y el código correcto para dicho caso. 
 
 ## Parte 2: Middlewares
 
