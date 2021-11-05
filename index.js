@@ -13,7 +13,9 @@ mongoose.connect('mongodb://localhost/db-twitter', function(err) {
 const usersRouter = require("./api/users");
 const tweetsRouter = require("./api/tweets");
 
+// Middleware => Permite recibir bodies del tipo JSON
 app.use(express.json());
+
 app.use("/api/users", usersRouter);
 app.use("/api/tweets", tweetsRouter);
 

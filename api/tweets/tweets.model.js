@@ -6,9 +6,8 @@ var TWEETSschema = new mongoose.Schema({
   owner: {
     type: String,
     required: true,
-  },
-  createdAt: Date,
-});
+  }
+}, { timestamps : true });
 
 var TWEETS = mongoose.model("Tweet", TWEETSschema);
 

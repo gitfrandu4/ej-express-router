@@ -43,7 +43,6 @@ async function create(req, res) {
   var newTweet = new TWEETModel({
     text: req.body.text,
     owner: req.body.owner,
-    createdAt: Date.now(),
   });
 
   let owner = req.body.owner.toString()
