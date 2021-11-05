@@ -59,7 +59,7 @@ async function create(req, res) {
 		await newUser.save();
 		return res.json(newUser);
 	} else {
-		return res.status(400).send(`CreateUserError: ${checkNewUser.message}`);
+		return res.status(400).send(`CreateUserError: ${sanitizeHtml(checkNewUser.message)}`);
 	}
 }
 

@@ -1,4 +1,5 @@
 const fs = require("fs");
+const sanitizeHtml = require('sanitize-html');
 var uniqid = require("uniqid");
 const { update } = require("../users/users.model");
 
@@ -52,7 +53,7 @@ async function create(req, res) {
   if (!userExist) {
     return res
       .status(404)
-      .send(`El username utilizado: ${owner}  no existe.`);
+      .send(`El username utilizado: ${sanitizeHtml(owner)}  no existe.`);
   }
 
   newTweet
